@@ -1,0 +1,190 @@
+﻿@model MoveGoods.Manager
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Manager</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.SAM, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.SAM, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.SAM, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ParentManager, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("Parent", ViewBag.Managers as IEnumerable<SelectListItem>, "Руководитель...", new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ParentManager, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Stores, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.Partial("StoresMgr")
+            </div>
+        </div>        
+        
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/knockout")
+    <script type="text/javascript">
+        var originalStores = @Html.Raw(Json.Encode(ViewBag.Stores)); 
+       
+        var storeMgrViewModel = {
+            self: function () {
+                return this;
+            },
+            onSearchButton: function () {
+                var f = $("#storeSearch").val();
+                var url = "/api/StoresSearch?filter=" + f;
+                $.ajax({
+                    method: "GET",
+                    url: url,
+                    view: this
+                })
+                    .done(function (msg) {
+                        var a = this.view.storeResult;
+                        a.removeAll();
+                        for (var x = 0; x < msg.length; x++)
+                        {
+                            a.push(msg[x]);
+                        }
+
+                    })
+                    .fail(function (msg)
+                {
+                        alert(msg);
+
+                    });
+            },
+            storeResult: ko.observableArray(),
+            storeList: ko.observableArray(ko.utils.arrayMap(originalStores, function (store) {                
+                var i = { Id: store.Id, Name: store.Name };
+                return i;
+            })),
+            onAddButton: function ()
+            {
+                var items = $("input:checkbox");
+                var new_vals = [];
+                for (var x = 0; x < items.length; x++)
+                {
+                    if (items[x].checked == true)
+                    {
+                        var o = items[x].value;
+                        new_vals.push(o);
+                    }
+
+                }
+                if (new_vals.length > 0)
+                {
+                    var url = "/api/StoresMgr";
+                    var managerId = $("#Id").val();
+                    var post_data = {
+                        managerId: managerId,
+                        storesId: new_vals
+                    };
+                    $.ajax({
+                        method: "POST",
+                        url: url,
+                        data: post_data,
+                        post_data: post_data,
+                        view: this
+                    })
+                        .done(function (msg) {
+                            if (msg != undefined) {
+                                var a = this.view.storeList;
+                                a.removeAll();
+                                for (var x = 0; x < msg.length; x++) {                                    
+                                    a.push(msg[x]);
+                                }
+                            }
+
+                        })
+                        .fail(function (msg) {
+                            alert(msg.responseText);
+                        });
+                }
+            },
+            onTextInput: function (d,e)
+            {
+                if (e.keyCode == 13)
+                {
+                    d.onSearchButton();
+                }
+                return true;
+            },
+            onDeleteButton: function (store) {
+                var item = store.Id;                
+                if (item > 0) {
+                    var url = "/api/StoresMgr";
+                    var managerId = $("#Id").val();
+                    var post_data = {
+                        managerId: managerId,
+                        storeId: item
+                    };
+                    $.ajax({
+                        method: "DELETE",
+                        url: url,
+                        data: post_data,
+                        post_data: post_data                        
+                    })
+                        .done(function (msg) {
+                            if (msg != undefined) {
+                                var a = storeMgrViewModel.storeList;
+                                a.remove(store);
+                            }
+                        })
+                        .fail(function (msg) {
+                            alert(msg.responseText);
+                        });
+                }
+            }
+        };
+        ko.applyBindings(storeMgrViewModel);
+    </script>
+}

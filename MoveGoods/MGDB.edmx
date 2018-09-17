@@ -1,0 +1,261 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="MGDB.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2012" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityContainer Name="MGDBStoreContainer">
+    <EntitySet Name="StoreSet" EntityType="MGDB.Store.StoreSet" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="ManagerSet" EntityType="MGDB.Store.ManagerSet" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="MoveSet" EntityType="MGDB.Store.MoveSet" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="StoreManager" EntityType="MGDB.Store.StoreManager" store:Type="Tables" Schema="dbo" />
+    <AssociationSet Name="ManagerMove" Association="MGDB.Store.ManagerMove">
+      <End Role="Manager" EntitySet="ManagerSet" />
+      <End Role="Move" EntitySet="MoveSet" />
+    </AssociationSet>
+    <AssociationSet Name="FK_StoreManager_Store" Association="MGDB.Store.FK_StoreManager_Store">
+      <End Role="Store" EntitySet="StoreSet" />
+      <End Role="StoreManager" EntitySet="StoreManager" />
+    </AssociationSet>
+    <AssociationSet Name="FK_StoreManager_Manager" Association="MGDB.Store.FK_StoreManager_Manager">
+      <End Role="Manager" EntitySet="ManagerSet" />
+      <End Role="StoreManager" EntitySet="StoreManager" />
+    </AssociationSet>
+    <AssociationSet Name="ManagerManager" Association="MGDB.Store.ManagerManager">
+      <End Role="Manager" EntitySet="ManagerSet" />
+      <End Role="Manager1" EntitySet="ManagerSet" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="StoreSet">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="nvarchar" Nullable="false" MaxLength="16" />
+    <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="256" />
+  </EntityType>
+  <EntityType Name="ManagerSet">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="SAM" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Description" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="ParentManager_Id" Type="int" Nullable="true" />
+  </EntityType>
+  <EntityType Name="MoveSet">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="MoveDT" Type="datetime" Nullable="false" />
+    <Property Name="Source" Type="nvarchar" Nullable="false" MaxLength="16" />
+    <Property Name="Destination" Type="nvarchar" Nullable="false" MaxLength="16" />
+    <Property Name="Capacity" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="Manager_Id" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="StoreManager">
+    <Key>
+      <PropertyRef Name="Stores_Id" />
+      <PropertyRef Name="Managers_Id" />
+    </Key>
+    <Property Name="Stores_Id" Type="nvarchar" Nullable="false" MaxLength="16" />
+    <Property Name="Managers_Id" Type="int" Nullable="false" />
+  </EntityType>
+  <Association Name="ManagerMove">
+    <End Role="Manager" Type="MGDB.Store.ManagerSet" Multiplicity="1" />
+    <End Role="Move" Type="MGDB.Store.MoveSet" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Manager">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Move">
+        <PropertyRef Name="Manager_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="ManagerManager">
+    <End Role="Manager" Type="MGDB.Store.ManagerSet" Multiplicity="0..1" />
+    <End Role="Manager1" Type="MGDB.Store.ManagerSet" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Manager">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Manager1">
+        <PropertyRef Name="ParentManager_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_StoreManager_Store">
+    <End Role="Store" Type="MGDB.Store.StoreSet" Multiplicity="1" />
+    <End Role="StoreManager" Type="MGDB.Store.StoreManager" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Store">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="StoreManager">
+        <PropertyRef Name="Stores_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_StoreManager_Manager">
+    <End Role="StoreManager" Type="MGDB.Store.StoreManager" Multiplicity="*" />
+    <End Role="Manager" Type="MGDB.Store.ManagerSet" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Manager">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="StoreManager">
+        <PropertyRef Name="Managers_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema xmlns="http://schemas.microsoft.com/ado/2009/11/edm" xmlns:cg="http://schemas.microsoft.com/ado/2006/04/codegeneration" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" Namespace="MGDB" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" annotation:UseStrongSpatialTypes="false">
+        <EntityContainer Name="MGDBContainer" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="StoreSet" EntityType="MGDB.Store" />
+          <EntitySet Name="ManagerSet" EntityType="MGDB.Manager" />
+          <EntitySet Name="MoveSet" EntityType="MGDB.Move" />
+          <AssociationSet Name="ManagerMove" Association="MGDB.ManagerMove">
+            <End Role="Manager" EntitySet="ManagerSet" />
+            <End Role="Move" EntitySet="MoveSet" />
+          </AssociationSet>
+          <AssociationSet Name="StoreManager" Association="MGDB.StoreManager">
+            <End Role="Store" EntitySet="StoreSet" />
+            <End Role="Manager" EntitySet="ManagerSet" />
+          </AssociationSet>
+          <AssociationSet Name="ManagerManager" Association="MGDB.ManagerManager">
+            <End Role="Manager" EntitySet="ManagerSet" />
+            <End Role="Manager1" EntitySet="ManagerSet" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Store">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="String" Nullable="false" annotation:StoreGeneratedPattern="None" MaxLength="16" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="256" />
+          <NavigationProperty Name="Managers" Relationship="MGDB.StoreManager" FromRole="Store" ToRole="Manager" />
+        </EntityType>
+        <EntityType Name="Manager">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SAM" Type="String" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" />
+          <Property Name="Description" Type="String" Nullable="false" />
+          <NavigationProperty Name="Moves" Relationship="MGDB.ManagerMove" FromRole="Manager" ToRole="Move" />
+          <NavigationProperty Name="Stores" Relationship="MGDB.StoreManager" FromRole="Manager" ToRole="Store" />
+          <NavigationProperty Name="StoreManagers" Relationship="MGDB.ManagerManager" FromRole="Manager" ToRole="Manager1" />
+          <NavigationProperty Name="ParentManager" Relationship="MGDB.ManagerManager" FromRole="Manager1" ToRole="Manager" />
+          </EntityType>
+        <EntityType Name="Move">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MoveDT" Type="DateTime" Nullable="false" />
+          <Property Name="Source" Type="String" Nullable="false" MaxLength="16" />
+          <Property Name="Destination" Type="String" Nullable="false" MaxLength="16" />
+          <NavigationProperty Name="Manager" Relationship="MGDB.ManagerMove" FromRole="Move" ToRole="Manager" />
+          <Property Name="Capacity" Type="String" Nullable="true" />
+        </EntityType>
+        <Association Name="ManagerMove">
+          <End Type="MGDB.Manager" Role="Manager" Multiplicity="1" />
+          <End Type="MGDB.Move" Role="Move" Multiplicity="*" />
+        </Association>
+        <Association Name="StoreManager">
+          <End Type="MGDB.Store" Role="Store" Multiplicity="*" />
+          <End Type="MGDB.Manager" Role="Manager" Multiplicity="*" />
+        </Association>
+        <Association Name="ManagerManager">
+          <End Type="MGDB.Manager" Role="Manager" Multiplicity="0..1" />
+          <End Type="MGDB.Manager" Role="Manager1" Multiplicity="*" />
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+    <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="MGDBStoreContainer" CdmEntityContainer="MGDBContainer">
+    <EntitySetMapping Name="StoreSet">
+      <EntityTypeMapping TypeName="IsTypeOf(MGDB.Store)">
+        <MappingFragment StoreEntitySet="StoreSet">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="ManagerSet">
+      <EntityTypeMapping TypeName="IsTypeOf(MGDB.Manager)">
+        <MappingFragment StoreEntitySet="ManagerSet">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="SAM" ColumnName="SAM" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Description" ColumnName="Description" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MoveSet">
+      <EntityTypeMapping TypeName="IsTypeOf(MGDB.Move)">
+        <MappingFragment StoreEntitySet="MoveSet">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="MoveDT" ColumnName="MoveDT" />
+          <ScalarProperty Name="Source" ColumnName="Source" />
+          <ScalarProperty Name="Destination" ColumnName="Destination" />
+          <ScalarProperty Name="Capacity" ColumnName="Capacity" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <AssociationSetMapping Name="ManagerMove" TypeName="MGDB.ManagerMove" StoreEntitySet="MoveSet">
+      <EndProperty Name="Manager">
+        <ScalarProperty Name="Id" ColumnName="Manager_Id" />
+      </EndProperty>
+      <EndProperty Name="Move">
+        <ScalarProperty Name="Id" ColumnName="Id" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="StoreManager" TypeName="MGDB.StoreManager" StoreEntitySet="StoreManager">
+      <EndProperty Name="Store">
+        <ScalarProperty Name="Id" ColumnName="Stores_Id" />
+      </EndProperty>
+      <EndProperty Name="Manager">
+        <ScalarProperty Name="Id" ColumnName="Managers_Id" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="ManagerManager" TypeName="MGDB.ManagerManager" StoreEntitySet="ManagerSet">
+      <EndProperty Name="Manager">
+        <ScalarProperty Name="Id" ColumnName="ParentManager_Id" />
+      </EndProperty>
+      <EndProperty Name="Manager1">
+        <ScalarProperty Name="Id" ColumnName="Id" />
+      </EndProperty>
+      <Condition ColumnName="ParentManager_Id" IsNull="false" />
+    </AssociationSetMapping>
+  </EntityContainerMapping>
+</Mapping></edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <edmx:Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </edmx:Connection>
+    <edmx:Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="False" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Нет" />
+        <DesignerProperty Name="UseLegacyProvider" Value="False" />
+      </DesignerInfoPropertySet>
+    </edmx:Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
